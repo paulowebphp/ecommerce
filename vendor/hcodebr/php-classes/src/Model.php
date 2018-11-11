@@ -15,12 +15,11 @@ class Model
 		switch($method)
 		{
 			case "get":
-				return $this->values[$fieldName];
+				return (isset($this->values[$fieldName])) ? $this->values[$fieldName] : NULL;
 				break;
 
 			case "set":
 				$this->values[$fieldName] = $args[0];
-				break;
 
 		}#END switch __call
 
