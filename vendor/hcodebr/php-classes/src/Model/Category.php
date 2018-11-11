@@ -30,6 +30,8 @@ class Category extends Model
 
 		$this->setData($results[0]);
 
+		Category::updateFile();
+
 	}#END save
 
 
@@ -62,7 +64,27 @@ class Category extends Model
 
 			]);
 
+		Category::updateFile();
+
 	}#END delete
+
+
+	public static function updateFile()
+	{
+		$categories = Category::listAll();
+
+		$html = [];
+
+		foreach ($categories as $row)
+		{
+			# code...
+			array_push($html, '<li><a href="/categories/'.$row['idcategory'].'">'.$row['descategory'].'</a></li>');
+
+		}#end foreach
+
+		file_put_contents($_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . "views" . DIRECTORY_SEPARATOR . "categories-menu.html", implode('', $html));
+
+	}#END updateFile
 
 }#END class user_error()
 
