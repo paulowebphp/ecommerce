@@ -206,7 +206,7 @@ class Category extends Model
 
 			]);
 		
-	}#END addProduct
+	}#END removeProduct
 
 
 }#END class Category

@@ -9,8 +9,68 @@ use \Hcode\Mailer;
 class User extends Model
 {
 	const SESSION = "User";
+
 	# CHAVE DE ENCRIPTAÇÃO TEM QUE TER PELO MENOS 16 CARACTERES
 	const SECRET = "HcodePhp7_Secret";
+
+	public static function getFromSession()
+	{
+		$user = new User();
+
+		if(isset($_SESSION[User::SESSION])
+			&& 
+			(int)$_SESSION[User::SESSION]['iduser'] > 0)
+		{
+
+			$user->setData($_SESSION[User::SESSION]);
+
+		}#end if
+
+		return $user;
+
+	}#END getFromSession
+
+
+	public static function checkLogin($inadmin = true)
+	{
+		if(!isset($_SESSION[User::SESSION])
+			|| 
+			!$_SESSION[User::SESSION]
+			|| 
+			!(int)$_SESSION[User::SESSION]["iduser"] > 0)
+		{
+
+			# EM QUALQUER DESTAS CONDIÇOES ACIMA, NÃO ESTÁ LOGADO
+			return false;
+	
+		}#end if
+		else
+		{
+			if($inadmin === true 
+				&& 
+				(bool)$_SESSION[User::SESSION]['inadmin'] === true)
+			{
+
+				return true;
+
+			}#end if
+			else if($inadmin === false)
+			{
+
+				return true;
+
+			}#end else if
+			else
+			{
+
+				return false;
+
+			}#end else
+
+		}#end else
+
+	}#END checkLogin
+
 
 	public static function login($login, $password)
 	{
@@ -49,16 +109,7 @@ class User extends Model
 
 	public static function verifyLogin($inadmin = true)
 	{
-		if(
-			!isset($_SESSION[User::SESSION])
-			||
-			!$_SESSION[User::SESSION]
-			||
-			!(int)$_SESSION[User::SESSION]["iduser"] > 0
-			||
-			(bool)$_SESSION[User::SESSION]["inadmin"] !== $inadmin
-			)
-		
+		if(!User::checkLogin($inadmin))		
 		{
 			header("Location: /admin/login/");
 			exit;
