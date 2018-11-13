@@ -17,7 +17,7 @@ $app->get('/', function()
 
 	]);
 
-});#END ROUTE
+});#END route
 
 $app->get("/categories/:idcategory", function($idcategory) 
 {
@@ -56,7 +56,7 @@ $app->get("/categories/:idcategory", function($idcategory)
 
 	]);	
 	
-});#END ROUTE
+});#END route
 
 
 $app->get("/products/:desurl", function($desurl) 
@@ -74,7 +74,7 @@ $app->get("/products/:desurl", function($desurl)
 
 	]); 
 
-});#END ROUTE
+});#END route
 
 
 $app->get("/cart", function() 
@@ -83,8 +83,69 @@ $app->get("/cart", function()
 
 	$page = new Page();
 
-	$page->setTpl("cart"); 
+	$page->setTpl("cart", [
 
-});#END ROUTE
+		'cart'=>$cart->getValues(),
+		'products'=>$cart->getProducts()
+
+	]); 
+
+});#END route
+
+
+$app->get("/cart/:idproduct/add", function($idproduct) 
+{
+	$product = new Product();
+
+	$product->get((int)$idproduct);
+
+	$cart = Cart::getFromSession();
+
+	$qtd = (isset($_GET['qtd'])) ? (int)$_GET['qtd'] : 1;
+
+	for ($i=0; $i < $qtd; $i++)
+	{ 
+		# code...
+		$cart->addProduct($product);
+
+	}#end for
+
+	header("Location: /cart");
+	exit;
+
+});#END route
+
+
+$app->get("/cart/:idproduct/minus", function($idproduct) 
+{
+	$product = new Product();
+
+	$product->get((int)$idproduct);
+
+	$cart = Cart::getFromSession();
+
+	$cart->removeProduct($product);
+
+	header("Location: /cart");
+	exit;
+
+});#END route
+
+
+$app->get("/cart/:idproduct/remove", function($idproduct) 
+{
+	$product = new Product();
+
+	$product->get((int)$idproduct);
+
+	$cart = Cart::getFromSession();
+
+	$cart->removeProduct($product, true);
+
+	header("Location: /cart");
+	exit;
+
+});#END route
+
 
  ?>

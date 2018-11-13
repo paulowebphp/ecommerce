@@ -33,11 +33,13 @@ class User extends Model
 
 	public static function checkLogin($inadmin = true)
 	{
-		if(!isset($_SESSION[User::SESSION])
+		if(
+			!isset($_SESSION[User::SESSION])
 			|| 
 			!$_SESSION[User::SESSION]
 			|| 
-			!(int)$_SESSION[User::SESSION]["iduser"] > 0)
+			!(int)$_SESSION[User::SESSION]["iduser"] > 0
+		)
 		{
 
 			# EM QUALQUER DESTAS CONDIÇOES ACIMA, NÃO ESTÁ LOGADO
@@ -46,9 +48,11 @@ class User extends Model
 		}#end if
 		else
 		{
-			if($inadmin === true 
+			if(
+				$inadmin === true 
 				&& 
-				(bool)$_SESSION[User::SESSION]['inadmin'] === true)
+				(bool)$_SESSION[User::SESSION]['inadmin'] === true
+			)
 			{
 
 				return true;
@@ -76,7 +80,13 @@ class User extends Model
 	{
 		$sql = new Sql();
 
-		$results = $sql->select("SELECT * FROM tb_users WHERE deslogin = :LOGIN", array(
+		$results = $sql->select("
+
+			SELECT * FROM tb_users 
+			WHERE deslogin = :LOGIN
+
+			", array(
+
 			":LOGIN"=>$login
 		));
 
@@ -128,7 +138,13 @@ class User extends Model
 	{
 		$sql = new Sql();
 
-		return $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b USING(idperson) ORDER BY b.desperson");
+		return $sql->select("
+
+			SELECT * FROM tb_users a 
+			INNER JOIN tb_persons b USING(idperson) 
+			ORDER BY b.desperson
+
+			");
 		
 	}#END listAll
 
