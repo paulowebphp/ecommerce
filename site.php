@@ -16,7 +16,7 @@ $app->get('/', function()
 
 	]);
 
-});#ROUTE / GET
+});#END ROUTE
 
 $app->get("/categories/:idcategory", function($idcategory) 
 {
@@ -55,6 +55,24 @@ $app->get("/categories/:idcategory", function($idcategory)
 
 	]);	
 	
-});#ROUTE /categories/:idcategory GET
+});#END ROUTE
+
+
+$app->get("/products/:desurl", function($desurl) 
+{
+	$product = new Product();
+
+	$product->getFromURL($desurl);
+
+	$page = new Page();
+
+	$page->setTpl("product-detail", [
+
+		'product'=>$product->getValues(),
+		'categories'=>$product->getCategories()
+
+	]); 
+
+});#END ROUTE
 
  ?>
