@@ -13,6 +13,9 @@ class User extends Model
 	# CHAVE DE ENCRIPTAÇÃO TEM QUE TER PELO MENOS 16 CARACTERES
 	const SECRET = "HcodePhp7_Secret";
 
+	const ERROR = "UserError";
+	const ERROR_REGISTER = "UserErrorRegister";
+
 	public static function getFromSession()
 	{
 		$user = new User();
@@ -76,6 +79,8 @@ class User extends Model
 	}#END checkLogin
 
 
+	/*
+	# ANTES DA AULA 117
 	public static function login($login, $password)
 	{
 		$sql = new Sql();
@@ -116,7 +121,58 @@ class User extends Model
 		}
 
 	}#END login
+	*/
 
+	# AULA 117
+	public static function login($login, $password)
+	{
+		$sql = new Sql();
+
+		$results = $sql->select("
+
+			SELECT * FROM tb_users a
+			INNER JOIN tb_persons b
+			ON a.idperson = b.idperson
+			WHERE a.deslogin = :LOGIN
+
+			", array(
+
+			":LOGIN"=>$login
+		));
+
+		if(count($results) === 0)
+		{
+			throw new \Exception("Usuário inexistente ou senha inválida");
+			
+		}#end if
+
+		$data = $results[0];
+
+		if(password_verify($password, $data["despassword"]) === true)
+		{
+			$user = new User();
+
+			$data['desperson'] = utf8_encode($data['desperson']);
+
+			$user->setData($data);
+
+			$_SESSION[User::SESSION] = $user->getValues();
+
+			return $user;
+
+		}#end if
+		else
+
+		{
+			throw new \Exception("Usuário inexistente ou senha inválida");
+			
+		}#end else
+
+	}#END login
+
+
+	/* 
+	# Antes da aula 117
 	public static function verifyLogin($inadmin = true)
 	{
 		if(!User::checkLogin($inadmin))		
@@ -127,12 +183,42 @@ class User extends Model
 		}#END if verifyLogin
 
 	}#END verifyLogin
+	*/
+
+	# Aula 117
+	public static function verifyLogin($inadmin = true)
+	{
+		if(!User::checkLogin($inadmin))		
+		{
+			
+			if( $inadmin )
+			{
+
+				header("Location: /admin/login");
+
+			}#end if
+			else
+			{
+
+				header("Location: /login");
+
+			}#end else
+
+			exit;
+
+		}#END if verifyLogin
+
+	}#END verifyLogin
+
+
 
 	public static function logout()
 	{
 		$_SESSION[User::SESSION] = NULL;
 		
 	}#END logout
+
+
 
 	public static function listAll()
 	{
@@ -142,7 +228,7 @@ class User extends Model
 
 			SELECT * FROM tb_users a 
 			INNER JOIN tb_persons b USING(idperson) 
-			ORDER BY b.desperson
+			ORDER BY b.desperson;
 
 			");
 		
@@ -162,9 +248,9 @@ class User extends Model
 
 		$results = $sql->select("CALL sp_users_save(:desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)", array(
 
-			":desperson"=>$this->getdesperson(),
+			":desperson"=>utf8_decode($this->getdesperson()),
 			":deslogin"=>$this->getdeslogin(),
-			":despassword"=>$this->getdespassword(),
+			":despassword"=>User::getPasswordHash($this->getdespassword()),
 			":desemail"=>$this->getdesemail(),
 			":nrphone"=>$this->getnrphone(),
 			":inadmin"=>$this->getinadmin()
@@ -174,17 +260,44 @@ class User extends Model
 
 	}#END save
 
+
+	# Aula 117
 	public function get($iduser)
 	{
 		$sql = new Sql();
 
 		$results = $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b USING(idperson) WHERE a.iduser = :iduser", array(
+
 			":iduser"=>$iduser
+
+		));
+
+		$data = $results[0];
+
+		$data['desperson'] = utf8_encode($data['desperson']);
+
+		$this->setData($results[0]);
+
+	}#END get
+
+
+	/*
+	# Antes da aula 117
+	public function get($iduser)
+	{
+		$sql = new Sql();
+
+		$results = $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b USING(idperson) WHERE a.iduser = :iduser", array(
+
+			":iduser"=>$iduser
+
 		));
 
 		$this->setData($results[0]);
 
 	}#END get
+	*/
+
 
 	public function update()
 	{
@@ -193,9 +306,9 @@ class User extends Model
 		$results = $sql->select("CALL sp_usersupdate_save(:iduser, :desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)", array(
 
 			":iduser"=>$this->getiduser(),
-			":desperson"=>$this->getdesperson(),
+			":desperson"=>utf8_decode($this->getdesperson()),
 			":deslogin"=>$this->getdeslogin(),
-			":despassword"=>$this->getdespassword(),
+			":despassword"=>User::getPasswordHash($this->getdespassword()),
 			":desemail"=>$this->getdesemail(),
 			":nrphone"=>$this->getnrphone(),
 			":inadmin"=>$this->getinadmin()
@@ -433,6 +546,95 @@ public static function getForgot($email, $inadmin = true)
 			));
 
 	}#END setPassword
+
+
+
+	public static function setError($msg)
+	{
+
+		$_SESSION[User::ERROR] = $msg;
+
+	}#END setError
+
+
+	public static function getError()
+	{
+
+		$msg = (isset($_SESSION[User::ERROR]) && $_SESSION[User::ERROR]) ? $_SESSION[User::ERROR] : '';
+
+		User::clearError();
+
+		return $msg;
+
+	}#END getError
+
+
+	public static function clearError()
+	{
+		$_SESSION[User::ERROR] = NULL;
+
+	}#END clearError
+	
+
+
+	public static function setErrorRegister($msg)
+	{
+		$_SESSION[User::ERROR_REGISTER] = $msg;
+		
+	}#END setErrorRegister
+
+
+
+	public static function getErrorRegister()
+	{
+		$msg = (isset($_SESSION[User::ERROR_REGISTER]) && $_SESSION[User::ERROR_REGISTER]) ? $_SESSION[User::ERROR_REGISTER] : '';
+
+		User::clearErrorRegister();
+
+		return $msg;
+
+	}#END getErrorRegister
+
+
+
+	public static function clearErrorRegister()
+	{
+		$_SESSION[User::ERROR_REGISTER] = NULL;
+		
+	}#END clearErrorRegister
+
+
+
+	public static function checkLoginExist($login)
+	{
+		$sql = new Sql();
+
+		$results = $sql->select("
+
+			SELECT * FROM tb_users
+			WHERE deslogin = :deslogin;
+
+			", [
+
+				':deslogin'=>$login
+
+			]);
+
+		return ( count($results) > 0 );
+
+	}#END checkLoginExist
+
+
+
+	public static function getPasswordHash($password)
+	{
+		return password_hash($password, PASSWORD_DEFAULT, [
+
+			'cost'=>12
+
+		]);
+
+	}#END getPasswordHash
 
 
 }#END class User
