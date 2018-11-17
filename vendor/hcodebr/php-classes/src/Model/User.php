@@ -620,6 +620,10 @@ public static function getForgot($email, $inadmin = true)
 
 			]);
 
+		# Colocar o 'count' entre parênteses equivale a um if.
+		# If count count($results) > 0 , retorna TRUE
+		# If count count($results) = 0 , retorna FALSE
+		
 		return ( count($results) > 0 );
 
 	}#END checkLoginExist
