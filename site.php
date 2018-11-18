@@ -6,6 +6,9 @@ use \Hcode\Model\Category;
 use \Hcode\Model\Cart;
 use \Hcode\Model\Address;
 use \Hcode\Model\User;
+use \Hcode\Model\Order;
+use \Hcode\Model\OrderStatus;
+
 
 $app->get('/', function() 
 {
@@ -223,112 +226,76 @@ $app->post("/checkout", function()
 	User::verifyLogin(false);
 
 	# Validando se informou o CEP
-	if( 
+	if( !isset($_POST['zipcode']) || $_POST['zipcode'] === '' )
+	{
 
-		!isset($_POST['zipcode'])
-		||
-		$_POST['zipcode'] === ''
+		Address::setMsgError("Informe o CEP");
 
-	 )
-	 {
+		header('Location: /checkout');
+		exit;
 
-	 	address::setMsgError("Informe o CEP");
-
-	 	header('Location: /checkout');
-	 	exit;
-
-	 }#end if
+	}#end if
 
 
 	 # Validando se informou o Logradouro
-	if( 
+	if( !isset($_POST['desaddress']) || $_POST['desaddress'] === '' )
+	{
 
-		!isset($_POST['desaddress'])
-		||
-		$_POST['desaddress'] === ''
+		Address::setMsgError("Informe o Logradouro");
 
-	 )
-	 {
+		header('Location: /checkout');
+		exit;
 
-	 	address::setMsgError("Informe o Logradouro");
-
-	 	header('Location: /checkout');
-	 	exit;
-
-	 }#end if
+	}#end if
 
 
 
 	 # Validando se informou o Bairro
-	if( 
+	if( !isset($_POST['desdistrict']) || $_POST['desdistrict'] === '' )
+	{
 
-		!isset($_POST['desdistrict'])
-		||
-		$_POST['desdistrict'] === ''
+		Address::setMsgError("Informe o Bairro");
 
-	 )
-	 {
+		header('Location: /checkout');
+		exit;
 
-	 	address::setMsgError("Informe o Bairro");
-
-	 	header('Location: /checkout');
-	 	exit;
-
-	 }#end if
+	}#end if
 
 
 	 # Validando se informou a Cidade
-	if( 
+	if( !isset($_POST['descity']) || $_POST['descity'] === '' )
+	{
 
-		!isset($_POST['descity'])
-		||
-		$_POST['descity'] === ''
+		Address::setMsgError("Informe a Cidade");
 
-	 )
-	 {
+		header('Location: /checkout');
+		exit;
 
-	 	address::setMsgError("Informe a Cidade");
-
-	 	header('Location: /checkout');
-	 	exit;
-
-	 }#end if
+	}#end if
 
 
 	 # Validando se informou o Estado
-	if( 
+	if( !isset($_POST['desstate']) || $_POST['desstate'] === '' )
+	{
 
-		!isset($_POST['desstate'])
-		||
-		$_POST['desstate'] === ''
+		Address::setMsgError("Informe o Estado");
 
-	 )
-	 {
+		header('Location: /checkout');
+		exit;
 
-	 	address::setMsgError("Informe o Estado");
-
-	 	header('Location: /checkout');
-	 	exit;
-
-	 }#end if
+	}#end if
 
 
 	 # Validando se informou o País
-	if( 
+	if( !isset($_POST['descountry']) || $_POST['descountry'] === '' )
+	{
 
-		!isset($_POST['descountry'])
-		||
-		$_POST['descountry'] === ''
+		Address::setMsgError("Informe o País");
 
-	 )
-	 {
+		header('Location: /checkout');
+		exit;
 
-	 	address::setMsgError("Informe o País");
-
-	 	header('Location: /checkout');
-	 	exit;
-
-	 }#end if
+	}#end if
 
 
 	$user = User::getFromSession();
@@ -342,7 +309,25 @@ $app->post("/checkout", function()
 
 	$address->save();
 
-	header("Location: /order");
+	$cart = Cart::getFromSession();
+
+	$totals = $cart->getCalculateTotal();
+
+	$order = new Order();
+
+	$order->setData([
+
+		'idcart'=>$cart->getidcart(),
+		'idaddress'=>$address->getidaddress(),
+		'iduser'=>$user->getiduser(),
+		'idstatus'=>OrderStatus::EM_ABERTO,
+		'vltotal'=>$totals['vlprice'] + $cart->getvlfreight()
+
+	]);
+
+	$order->save();
+
+	header("Location: /order/".$order->getidorder());
 	exit;
 
 });#END route
@@ -414,13 +399,7 @@ $app->post("/register", function()
 	# Validando informar Nome
 	$_SESSION['registerValues'] = $_POST;
 
-	if(
-
-		!isset($_POST['name'])
-		||
-		$_POST['name'] == ''
-
-	)
+	if( !isset($_POST['name']) || $_POST['name'] == '' )
 	{
 
 		User::setErrorRegister("Preencha o seu nome");
@@ -431,13 +410,7 @@ $app->post("/register", function()
 	}#end if
 
 	# Validando informar e-mail
-	if(
-
-		!isset($_POST['email'])
-		||
-		$_POST['email'] == ''
-
-	)
+	if( !isset($_POST['email']) || $_POST['email'] == '' )
 	{
 
 		User::setErrorRegister("Informe o seu e-mail");
@@ -447,14 +420,9 @@ $app->post("/register", function()
 
 	}#end if
 
+
 	# Validando informar senha
-	if(
-
-		!isset($_POST['password'])
-		||
-		$_POST['password'] == ''
-
-	)
+	if( !isset($_POST['password']) || $_POST['password'] == '' )
 	{
 
 		User::setErrorRegister("Escolha uma senha");
@@ -506,7 +474,7 @@ $app->get("/forgot", function()
 
 	$page->setTpl("forgot");
 
-});#ROUTE /admin/forgot GET
+});#END route
 
 
 
@@ -517,7 +485,7 @@ $app->post("/forgot", function()
 	header("Location: /forgot/sent");
 	exit;
 
-});#ROUTE /admin/forgot POST
+});#END route
 
 
 
@@ -527,7 +495,7 @@ $app->get("/forgot/sent", function()
 	
 	$page->setTpl("forgot-sent");
 	
-});#ROUTE /admin/forgot/sent GET
+});#END route
 
 
 
@@ -542,7 +510,7 @@ $app->get("/forgot/reset", function()
 		"code"=>$_GET["code"]
 	));
 	
-});#ROUTE /admin/forgot/reset GET
+});#END route
 
 
 
@@ -557,7 +525,7 @@ $app->get("/forgot/reset", function()
 		"code"=>$_GET["code"]
 	));
 	
-});#ROUTE /admin/forgot/reset GET
+});#END route
 
 
 
@@ -590,7 +558,7 @@ $app->post("/forgot/reset", function()
 	
 	$page->setTpl("forgot-reset-success");
 
-});#ROUTE /admin/forgot/reset POST
+});#END route
 
 
 
@@ -610,7 +578,7 @@ $app->get("/profile", function()
 
 	]);
 	
-});#ROUTE /admin/forgot/reset GET
+});#END route
 
 
 
@@ -620,13 +588,7 @@ $app->post("/profile", function()
 
 
 	# Valida preenchimento de Nome
-	if(
-
-		!isset($_POST['desperson'])
-		||
-		$_POST['desperson'] === ''
-
-	)
+	if( !isset($_POST['desperson']) || $_POST['desperson'] === '' )
 	{
 
 		User::setError("Insira o seu nome");
@@ -638,13 +600,7 @@ $app->post("/profile", function()
 
 
 	# Valida preenchimento de e-mail
-	if(
-
-		!isset($_POST['desemail'])
-		||
-		$_POST['desemail'] === ''
-
-	)
+	if( !isset($_POST['desemail']) || $_POST['desemail'] === '' )
 	{
 
 		User::setError("Insira o seu e-mail");
@@ -689,8 +645,121 @@ $app->post("/profile", function()
 	header('Location: /profile');
 	exit;
 	
-});#ROUTE /admin/forgot/reset GET
+});#END route
 
+
+
+$app->get("/order/:idorder", function($idorder) 
+{
+	User::verifyLogin(false);
+
+	$order = new Order();
+
+	$order->get((int)$idorder);
+
+	$page = new Page();
+	
+	$page->setTpl("payment", [
+
+		"order"=>$order->getValues()
+
+	]);
+	
+});#END route
+
+
+$app->get("/boleto/:idorder", function($idorder) 
+{
+	User::verifyLogin(false);
+
+	$order = new Order();
+
+	$order->get((int)$idorder);
+
+	// DADOS DO BOLETO PARA O SEU CLIENTE
+	$dias_de_prazo_para_pagamento = 10;
+	$taxa_boleto = 5.00;
+	$data_venc = date("d/m/Y", time() + ($dias_de_prazo_para_pagamento * 86400));  // Prazo de X dias OU informe data: "13/04/2006"; 
+
+	# Aula 122
+	$valor_cobrado = formatPrice($order->getvltotal()); // Valor - REGRA: Sem pontos na milhar e tanto faz com "." ou "," ou com 1 ou 2 ou sem casa decimal
+
+	$valor_cobrado = str_replace(",", ".",$valor_cobrado);
+	$valor_boleto=number_format($valor_cobrado+$taxa_boleto, 2, ',', '');
+
+	# Aula 122
+	$dadosboleto["nosso_numero"] = $order->getidorder();  // Nosso numero - REGRA: Máximo de 8 caracteres!
+
+	# Aula 122
+	$dadosboleto["numero_documento"] = $order->getidorder();	// Num do pedido ou nosso numero
+
+	$dadosboleto["data_vencimento"] = $data_venc; // Data de Vencimento do Boleto - REGRA: Formato DD/MM/AAAA
+	$dadosboleto["data_documento"] = date("d/m/Y"); // Data de emissão do Boleto
+	$dadosboleto["data_processamento"] = date("d/m/Y"); // Data de processamento do boleto (opcional)
+	$dadosboleto["valor_boleto"] = $valor_boleto; 	// Valor do Boleto - REGRA: Com vírgula e sempre com duas casas depois da virgula
+
+	// DADOS DO SEU CLIENTE
+
+	# Aula 122
+	$dadosboleto["sacado"] = $order->getdesperson();
+
+	# Aula 122
+	$dadosboleto["endereco1"] = $order->getdesaddress()." - ".
+	$order->getdescomplement()." - ".
+	$order->getdesdistrict().".";
+
+	# Aula 122
+	$dadosboleto["endereco2"] = $order->getdescity()." - ".
+	$order->getdesstate()." - ".
+	$order->getdescountry()." - ".
+	"CEP: ".$order->getzipcode().".";
+
+	// INFORMACOES PARA O CLIENTE
+	$dadosboleto["demonstrativo1"] = "Pagamento de Compra na Loja Hcode E-commerce";
+	$dadosboleto["demonstrativo2"] = "Taxa bancária - R$ 0,00";
+	$dadosboleto["demonstrativo3"] = "";
+	$dadosboleto["instrucoes1"] = "- Sr. Caixa, cobrar multa de 2% após o vencimento";
+	$dadosboleto["instrucoes2"] = "- Receber até 10 dias após o vencimento";
+	$dadosboleto["instrucoes3"] = "- Em caso de dúvidas entre em contato conosco: suporte@hcode.com.br";
+	$dadosboleto["instrucoes4"] = "&nbsp; Emitido pelo sistema Projeto Loja Hcode E-commerce - www.hcode.com.br";
+
+	// DADOS OPCIONAIS DE ACORDO COM O BANCO OU CLIENTE
+	$dadosboleto["quantidade"] = "";
+	$dadosboleto["valor_unitario"] = "";
+	$dadosboleto["aceite"] = "";		
+	$dadosboleto["especie"] = "R$";
+	$dadosboleto["especie_doc"] = "";
+
+
+	// ---------------------- DADOS FIXOS DE CONFIGURAÇÃO DO SEU BOLETO --------------- //
+
+
+	// DADOS DA SUA CONTA - ITAÚ
+	$dadosboleto["agencia"] = "1690"; // Num da agencia, sem digito
+	$dadosboleto["conta"] = "48781";	// Num da conta, sem digito
+	$dadosboleto["conta_dv"] = "2"; 	// Digito do Num da conta
+
+	// DADOS PERSONALIZADOS - ITAÚ
+	$dadosboleto["carteira"] = "175";  // Código da Carteira: pode ser 175, 174, 104, 109, 178, ou 157
+
+	// SEUS DADOS
+	$dadosboleto["identificacao"] = "Hcode Treinamentos";
+	$dadosboleto["cpf_cnpj"] = "24.700.731/0001-08";
+	$dadosboleto["endereco"] = "Rua Ademar Saraiva Leão, 234 - Alvarenga, 09853-120";
+	$dadosboleto["cidade_uf"] = "São Bernardo do Campo - SP";
+	$dadosboleto["cedente"] = "HCODE TREINAMENTOS LTDA - ME";
+
+	# Aula 122
+	$path = $_SERVER['DOCUMENT_ROOT'].
+	DIRECTORY_SEPARATOR."res".
+	DIRECTORY_SEPARATOR."boletophp".
+	DIRECTORY_SEPARATOR."include".
+	DIRECTORY_SEPARATOR;
+	require_once($path . "funcoes_itau.php");
+	require_once($path . "layout_itau.php");
+
+		
+});#END route
 
 
 

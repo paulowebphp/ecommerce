@@ -17,6 +17,12 @@ class Address extends Model
 
 		$ch = curl_init();
 
+		# CURLOPT_URL - Define a URL que será requisitada pelo cURL
+
+		# CURLOPT_RETURNTRANSFER - Define o tipo de retorno que ocorrerá da requisição. Se definirmos TRUE ou 1, o retorno será uma string
+
+		# CURLOPT_SSL_VERIFYPEER - Indica se ocorrerá a verificação dos peers durante a requisição. Se informarmos 0 ou FALSE, a verificação não ocorrerá
+
 		curl_setopt($ch, CURLOPT_URL, "https://viacep.com.br/ws/$nrcep/json/");
 
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -25,10 +31,7 @@ class Address extends Model
 
 		$data = json_decode(curl_exec($ch), true);
 
-		# Necessito fechar com curl_close() por se tratar de um ponteiro 
-		# de memória. Se não fechar, cada vez que der um REFRESH na 
-		# página, no front ele irá criar mais um ponteiro e vai pesar 
-		# na memória
+		# Necessito fechar com curl_close() por se tratar de um ponteiro de memória. Se não fechar, cada vez que der um REFRESH na página, no front ele irá criar mais um ponteiro e vai pesar na memória
 
 		curl_close($ch);
 
