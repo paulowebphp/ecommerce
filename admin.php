@@ -127,18 +127,18 @@ $app->post("/admin/forgot/reset", function()
 
 	$user->get((int)$forgot["iduser"]);
 
-	/*
+	
 	# Aula 120
 	$password = User::getPasswordHash($_POST["password"]);
-	*/
-
 	
+	/*
+	# Aula 120
 	$password = password_hash($_POST["password"], PASSWORD_DEFAULT, [
 
 		"cost"=>12
 
 	]);
-	
+	*/
 
 	$user->setPassword($password);
 

@@ -424,6 +424,13 @@ class Cart extends Model
 	}#END getCalculateTotal
 
 
+	public static function removeFromSession()
+	{
+
+    	$_SESSION[Cart::SESSION] = NULL;
+    	
+	}#END removeFromSession
+
 }#END class Cart
 
  ?>
