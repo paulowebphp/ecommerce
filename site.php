@@ -321,7 +321,7 @@ $app->post("/checkout", function()
 		'idaddress'=>$address->getidaddress(),
 		'iduser'=>$user->getiduser(),
 		'idstatus'=>OrderStatus::EM_ABERTO,
-		'vltotal'=>$totals['vlprice'] + $cart->getvlfreight()
+		'vltotal'=>$cart->getvltotal()
 
 	]);
 
@@ -684,8 +684,11 @@ $app->get("/boleto/:idorder", function($idorder)
 	# Aula 122
 	$valor_cobrado = formatPrice($order->getvltotal()); // Valor - REGRA: Sem pontos na milhar e tanto faz com "." ou "," ou com 1 ou 2 ou sem casa decimal
 
-	$valor_cobrado = str_replace(",", ".",$valor_cobrado);
-	$valor_boleto=number_format($valor_cobrado+$taxa_boleto, 2, ',', '');
+	# Aula 123
+	$valor_cobrado = str_replace(".", "", $valor_cobrado);
+	$valor_cobrado = str_replace(",", ".", $valor_cobrado);
+
+	$valor_boleto = number_format($valor_cobrado+$taxa_boleto, 2, ',', '');
 
 	# Aula 122
 	$dadosboleto["nosso_numero"] = $order->getidorder();  // Nosso numero - REGRA: Máximo de 8 caracteres!
@@ -758,9 +761,52 @@ $app->get("/boleto/:idorder", function($idorder)
 	require_once($path . "funcoes_itau.php");
 	require_once($path . "layout_itau.php");
 
-		
 });#END route
 
 
+
+$app->get("/profile/orders", function() 
+{
+	User::verifyLogin(false);
+
+	$user = User::getFromSession();
+
+	$page = new Page();
+	
+	$page->setTpl("profile-orders", [
+
+		"orders"=>$user->getOrders()
+
+	]);
+	
+});#END route
+
+
+
+$app->get("/profile/orders/:idorder", function($idorder) 
+{
+	User::verifyLogin(false);
+
+	$order = new Order();
+
+	$order->get((int)$idorder);
+
+	$cart = new Cart();
+
+	$cart->get((int)$order->getidcart());
+
+	$cart->getCalculateTotal();
+
+	$page = new Page();
+	
+	$page->setTpl("profile-orders-detail", [
+
+		'order'=>$order->getValues(),
+		'cart'=>$cart->getValues(),
+		'products'=>$cart->getProducts()
+
+	]);
+	
+});#END route
 
  ?>
