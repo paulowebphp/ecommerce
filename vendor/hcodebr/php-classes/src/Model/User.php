@@ -16,6 +16,8 @@ class User extends Model
 	const ERROR = "UserError";
 	const ERROR_REGISTER = "UserErrorRegister";
 
+	const SUCCESS = "UserSuccess";
+
 	public static function getFromSession()
 	{
 		$user = new User();
@@ -250,7 +252,7 @@ class User extends Model
 
 			":desperson"=>utf8_decode($this->getdesperson()),
 			":deslogin"=>$this->getdeslogin(),
-			":despassword"=>User::getPasswordHash($this->getdespassword()),
+			":despassword"=>$this->getdespassword(),
 			":desemail"=>$this->getdesemail(),
 			":nrphone"=>$this->getnrphone(),
 			":inadmin"=>$this->getinadmin()
@@ -308,14 +310,17 @@ class User extends Model
 			":iduser"=>$this->getiduser(),
 			":desperson"=>utf8_decode($this->getdesperson()),
 			":deslogin"=>$this->getdeslogin(),
-			":despassword"=>User::getPasswordHash($this->getdespassword()),
+			":despassword"=>$this->getdespassword(),
 			":desemail"=>$this->getdesemail(),
 			":nrphone"=>$this->getnrphone(),
 			":inadmin"=>$this->getinadmin()
 		));
 
 		$this->setData($results[0]);
+
 	}#END update
+
+
 
 	public function delete()
 	{
@@ -575,6 +580,46 @@ public static function getForgot($email, $inadmin = true)
 
 	}#END clearError
 	
+
+
+
+
+
+
+
+public static function setSuccess($msg)
+	{
+
+		$_SESSION[User::SUCCESS] = $msg;
+
+	}#END setSuccess
+
+
+	public static function getSuccess()
+	{
+
+		$msg = (isset($_SESSION[User::SUCCESS]) && $_SESSION[User::SUCCESS]) ? $_SESSION[User::SUCCESS] : '';
+
+		User::clearSuccess();
+
+		return $msg;
+
+	}#END getSuccess
+
+
+	public static function clearSuccess()
+	{
+		$_SESSION[User::SUCCESS] = NULL;
+
+	}#END clearSuccess
+
+
+
+
+
+
+
+
 
 
 	public static function setErrorRegister($msg)

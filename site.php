@@ -168,20 +168,189 @@ $app->get("/checkout", function()
 
 	User::verifyLogin(false);
 
+	$address = new Address();
+
 	$cart = Cart::getFromSession();
 
-	$address = new Address();
+	if( isset($_GET['zipcode']) )
+	{
+
+		$_GET['zipcode'] = $cart->getdeszipcode();
+
+	}#end if
+
+	if( isset($_GET['zipcode']) )
+	{
+
+		$address->loadFromCEP($_GET['zipcode']);
+
+		$cart->setdeszipcode($_GET['zipcode']);
+
+		$cart->save();
+
+		$cart->getCalculateTotal();
+
+	}#end if
+
+	if(!$address->getdesaddress()) $address->setdesaddress('');
+	if(!$address->getdescomplement()) $address->setdescomplement('');
+	if(!$address->getdesdistrict()) $address->setdesdistrict('');
+	if(!$address->getdescity()) $address->setdescity('');
+	if(!$address->getdesstate()) $address->setdesstate('');
+	if(!$address->getdescountry()) $address->setdescountry('');
+	if(!$address->getdeszipcode()) $address->setdeszipcode('');
 	
 	$page = new Page();
 
 	$page->setTpl("checkout", [
 
 		'cart'=>$cart->getValues(),
-		'address'=>$address->getValues()
+		'address'=>$address->getValues(),
+		'products'=>$cart->getProducts(),
+		'error'=>Address::getMsgError()
 
 	]); 
 
 });#END route
+
+
+
+
+
+$app->post("/checkout", function() 
+{
+
+	User::verifyLogin(false);
+
+	# Validando se informou o CEP
+	if( 
+
+		!isset($_POST['zipcode'])
+		||
+		$_POST['zipcode'] === ''
+
+	 )
+	 {
+
+	 	address::setMsgError("Informe o CEP");
+
+	 	header('Location: /checkout');
+	 	exit;
+
+	 }#end if
+
+
+	 # Validando se informou o Logradouro
+	if( 
+
+		!isset($_POST['desaddress'])
+		||
+		$_POST['desaddress'] === ''
+
+	 )
+	 {
+
+	 	address::setMsgError("Informe o Logradouro");
+
+	 	header('Location: /checkout');
+	 	exit;
+
+	 }#end if
+
+
+
+	 # Validando se informou o Bairro
+	if( 
+
+		!isset($_POST['desdistrict'])
+		||
+		$_POST['desdistrict'] === ''
+
+	 )
+	 {
+
+	 	address::setMsgError("Informe o Bairro");
+
+	 	header('Location: /checkout');
+	 	exit;
+
+	 }#end if
+
+
+	 # Validando se informou a Cidade
+	if( 
+
+		!isset($_POST['descity'])
+		||
+		$_POST['descity'] === ''
+
+	 )
+	 {
+
+	 	address::setMsgError("Informe a Cidade");
+
+	 	header('Location: /checkout');
+	 	exit;
+
+	 }#end if
+
+
+	 # Validando se informou o Estado
+	if( 
+
+		!isset($_POST['desstate'])
+		||
+		$_POST['desstate'] === ''
+
+	 )
+	 {
+
+	 	address::setMsgError("Informe o Estado");
+
+	 	header('Location: /checkout');
+	 	exit;
+
+	 }#end if
+
+
+	 # Validando se informou o País
+	if( 
+
+		!isset($_POST['descountry'])
+		||
+		$_POST['descountry'] === ''
+
+	 )
+	 {
+
+	 	address::setMsgError("Informe o País");
+
+	 	header('Location: /checkout');
+	 	exit;
+
+	 }#end if
+
+
+	$user = User::getFromSession();
+
+	$address = new Address();
+
+	$_POST['deszipcode'] = $_POST['zipcode'];
+	$_POST['idperson'] = $user->getidperson();
+
+	$address->setData($_POST);
+
+	$address->save();
+
+	header("Location: /order");
+	exit;
+
+});#END route
+
+
+
+
+
 
 
 $app->get("/login", function() 
@@ -331,16 +500,6 @@ $app->post("/register", function()
 
 
 
-
-
-
-
-
-
-
-
-
-
 $app->get("/forgot", function() 
 {
 	$page = new Page();
@@ -348,6 +507,7 @@ $app->get("/forgot", function()
 	$page->setTpl("forgot");
 
 });#ROUTE /admin/forgot GET
+
 
 
 $app->post("/forgot", function() 
@@ -360,6 +520,7 @@ $app->post("/forgot", function()
 });#ROUTE /admin/forgot POST
 
 
+
 $app->get("/forgot/sent", function() 
 {
 	$page = new Page();
@@ -369,6 +530,22 @@ $app->get("/forgot/sent", function()
 });#ROUTE /admin/forgot/sent GET
 
 
+
+$app->get("/forgot/reset", function() 
+{
+	$user = User::validForgotDecrypt($_GET["code"]);
+
+	$page = new Page();
+	
+	$page->setTpl("forgot-reset", array(
+		"name"=>$user["desperson"],
+		"code"=>$_GET["code"]
+	));
+	
+});#ROUTE /admin/forgot/reset GET
+
+
+
 $app->get("/forgot/reset", function() 
 {
 	$user = User::validForgotDecrypt($_GET["code"]);
@@ -383,18 +560,6 @@ $app->get("/forgot/reset", function()
 });#ROUTE /admin/forgot/reset GET
 
 
-$app->get("/forgot/reset", function() 
-{
-	$user = User::validForgotDecrypt($_GET["code"]);
-
-	$page = new Page();
-	
-	$page->setTpl("forgot-reset", array(
-		"name"=>$user["desperson"],
-		"code"=>$_GET["code"]
-	));
-	
-});#ROUTE /admin/forgot/reset GET
 
 $app->post("/forgot/reset", function() 
 {
@@ -406,11 +571,18 @@ $app->post("/forgot/reset", function()
 
 	$user->get((int)$forgot["iduser"]);
 
+	/*
+	# Aula 120
+	$password = User::getPasswordHash($_POST["password"]);
+	*/
+	
+	# Aula 120
 	$password = password_hash($_POST["password"], PASSWORD_DEFAULT, [
 
 		"cost"=>12
 
 	]);
+	
 
 	$user->setPassword($password);
 
@@ -418,9 +590,108 @@ $app->post("/forgot/reset", function()
 	
 	$page->setTpl("forgot-reset-success");
 
-	//header("Location: /admin/forgot/sent/");
-	//exit;
-
 });#ROUTE /admin/forgot/reset POST
+
+
+
+$app->get("/profile", function() 
+{
+	User::verifyLogin(false);
+
+	$user = User::getFromSession();
+
+	$page = new Page();
+	
+	$page->setTpl("profile", [
+
+		"user"=>$user->getValues(),
+		'profileMsg'=>User::getSuccess(),
+		'profileError'=>User::getError()
+
+	]);
+	
+});#ROUTE /admin/forgot/reset GET
+
+
+
+$app->post("/profile", function() 
+{
+	User::verifyLogin(false);
+
+
+	# Valida preenchimento de Nome
+	if(
+
+		!isset($_POST['desperson'])
+		||
+		$_POST['desperson'] === ''
+
+	)
+	{
+
+		User::setError("Insira o seu nome");
+
+		header('Location: /profile');
+		exit;
+
+	}#end if
+
+
+	# Valida preenchimento de e-mail
+	if(
+
+		!isset($_POST['desemail'])
+		||
+		$_POST['desemail'] === ''
+
+	)
+	{
+
+		User::setError("Insira o seu e-mail");
+
+		header('Location: /profile');
+		exit;
+
+		
+	}#end if
+
+	$user = User::getFromSession();
+
+	if( $_POST['desemail'] != $user->getdesemail() )
+	{
+
+		if( User::checkLoginExist($_POST['desemail']) === true )
+		{
+
+			User::setError("Este endereço de e-mail já está cadastrado");
+
+			header('Location: /profile');
+			exit;
+
+		}#end if 
+
+	}#end if
+
+
+	$_POST['iduser'] = $user->getiduser();
+	$_POST['inadmin'] = $user->getinadmin();
+	$_POST['despassword'] = $user->getdespassword();
+	$_POST['deslogin'] = $_POST['desemail'];
+
+	$user->setData($_POST);
+
+	$user->update();
+
+	$_SESSION[User::SESSION] = $user->getValues(); 
+
+	User::setSuccess("Dados alterados com sucesso");
+
+	header('Location: /profile');
+	exit;
+	
+});#ROUTE /admin/forgot/reset GET
+
+
+
 
  ?>

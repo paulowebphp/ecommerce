@@ -127,11 +127,18 @@ $app->post("/admin/forgot/reset", function()
 
 	$user->get((int)$forgot["iduser"]);
 
+	/*
+	# Aula 120
+	$password = User::getPasswordHash($_POST["password"]);
+	*/
+
+	
 	$password = password_hash($_POST["password"], PASSWORD_DEFAULT, [
 
 		"cost"=>12
 
 	]);
+	
 
 	$user->setPassword($password);
 
@@ -142,9 +149,6 @@ $app->post("/admin/forgot/reset", function()
 	]);
 
 	$page->setTpl("forgot-reset-success");
-
-	//header("Location: /admin/forgot/sent/");
-	//exit;
 
 });#ROUTE /admin/forgot/reset POST
 
