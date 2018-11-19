@@ -49,8 +49,6 @@ $app->get("/admin/products", function()
 
 	}#end for
 
-	$products = Product::listAll();
-
 	$page = new PageAdmin();
 
 	$page->setTpl("products", [
