@@ -711,15 +711,10 @@ $app->get("/boleto/:idorder", function($idorder)
 	$dadosboleto["sacado"] = $order->getdesperson();
 
 	# Aula 122
-	$dadosboleto["endereco1"] = $order->getdesaddress()." - ".
-	$order->getdescomplement()." - ".
-	$order->getdesdistrict().".";
+	$dadosboleto["endereco1"] = $order->getdesaddress()." - ".$order->getdescomplement()." - ".$order->getdesdistrict().".";
 
 	# Aula 122
-	$dadosboleto["endereco2"] = $order->getdescity()." - ".
-	$order->getdesstate()." - ".
-	$order->getdescountry()." - ".
-	"CEP: ".$order->getzipcode().".";
+	$dadosboleto["endereco2"] = $order->getdescity()." - ".$order->getdesstate()." - ".$order->getdescountry()." - "."CEP: ".$order->getzipcode().".";
 
 	// INFORMACOES PARA O CLIENTE
 	$dadosboleto["demonstrativo1"] = "Pagamento de Compra na Loja Hcode E-commerce";
