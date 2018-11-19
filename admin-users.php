@@ -3,6 +3,82 @@
 use \Hcode\PageAdmin;
 use \Hcode\Model\User;
 
+
+
+$app->get("/admin/users/:iduser/password", function($iduser) 
+{
+	User::verifyLogin();
+
+	$user = new User();
+
+	$user->get((int)$iduser);
+
+	$page = new PageAdmin();
+
+	$page->setTpl("users-password",[
+
+		"user"=>$user->getValues(),
+		"msgError"=>User::getError(),
+		"msgSuccess"=>User::getSuccess()
+
+	]);
+
+});#ROUTE /admin/users/create GET
+
+
+
+$app->post("/admin/users/:iduser/password", function($iduser) 
+{
+	User::verifyLogin();
+
+	# Validando se informou a nova senha
+	if( !isset($_POST['despassword']) || $_POST['despassword'] === '' )
+	{
+
+		User::setError("Preencha a nova senha");
+
+		header("Location: /admin/users/$iduser/password");
+		exit;
+
+	}#end if
+
+
+	# Validando se confirmou a nova senha
+	if( !isset($_POST['despassword-confirm']) || $_POST['despassword-confirm'] === '' )
+	{
+
+		User::setError("Confirme a nova senha");
+
+		header("Location: /admin/users/$iduser/password");
+		exit;
+
+	}#end if
+
+	# Validando se as senhas informadas são iguais
+	if( $_POST['despassword'] !== $_POST['despassword-confirm'] )
+	{
+		User::setError("As senhas informadas devem ser iguais. Digite novamente");
+
+		header("Location: /admin/users/$iduser/password");
+		exit;
+	}#end if
+
+	$user = new User();
+
+	$user->get((int)$iduser);
+
+	$user->setPassword(User::getPasswordHash($_POST['despassword']));
+
+
+	User::setSuccess("Senha alterada com sucesso");
+
+	header("Location: /admin/users/$iduser/password");
+	exit;
+
+});#ROUTE /admin/users/create GET
+
+
+
 $app->get("/admin/users", function() 
 {
 	User::verifyLogin();
