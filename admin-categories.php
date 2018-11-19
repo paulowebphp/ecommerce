@@ -9,13 +9,54 @@ $app->get("/admin/categories", function()
 {
 	User::verifyLogin();
 
-	$categories = Category::listAll();
+	$search = (isset($_GET['search'])) ? $_GET['search'] : "";
+
+	$page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
+
+	if( $search != '' )
+	{
+
+		$pagination = Category::getPageSearch($search, $page, 2);
+
+	}#end if
+	else
+	{
+		# Aula 126
+		// $users = User::listAll();
+
+		# Aula 126
+		$pagination = Category::getPage($page, 2);
+
+	}#end else
+
+
+	$pages = [];
+
+	for ($x=0; $x < $pagination['pages']; $x++)
+	{ 
+		# code...
+		array_push($pages, [
+
+			'href'=>'/admin/categories?'.http_build_query([
+
+				'page'=>$x+1,
+				'search'=>$search
+
+			]),
+
+			'text'=>$x+1
+
+		]);
+
+	}#end for
 
 	$page = new PageAdmin();
 
 	$page->setTpl("categories", array(
 
-		'categories'=>$categories
+		"categories"=>$pagination['data'],
+		"search"=>$search,
+		"pages"=>$pages
 
 	));
 	
