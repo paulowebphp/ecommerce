@@ -8,13 +8,56 @@ $app->get("/admin/products", function()
 {
 	User::verifyLogin();
 
+	$search = (isset($_GET['search'])) ? $_GET['search'] : "";
+
+	$page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
+
+	if( $search != '' )
+	{
+
+		$pagination = Product::getPageSearch($search, $page, 5);
+
+	}#end if
+	else
+	{
+		# Aula 126
+		// $users = User::listAll();
+
+		# Aula 126
+		$pagination = Product::getPage($page, 5);
+
+	}#end else
+
+
+	$pages = [];
+
+	for ($x=0; $x < $pagination['pages']; $x++)
+	{ 
+		# code...
+		array_push($pages, [
+
+			'href'=>'/admin/products?'.http_build_query([
+
+				'page'=>$x+1,
+				'search'=>$search
+
+			]),
+
+			'text'=>$x+1
+
+		]);
+
+	}#end for
+
 	$products = Product::listAll();
 
 	$page = new PageAdmin();
 
 	$page->setTpl("products", [
 
-		'products'=>$products
+		"products"=>$pagination['data'],
+		"search"=>$search,
+		"pages"=>$pages
 
 	]);	
 	
