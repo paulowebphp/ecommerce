@@ -3,7 +3,7 @@
 use \Hcode\PageAdmin;
 use \Hcode\Model\User;
 
-$app->get("/admin/users", function() 
+$app->get("/admin/users/", function() 
 {
 	User::verifyLogin();
 
@@ -11,23 +11,11 @@ $app->get("/admin/users", function()
 
 	$page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
 
-	if( $search != '' )
-	{
+	# Aula 126
+	// $users = User::listAll();
 
-		$pagination = User::getPageSearch($search, $page, 5);
-
-	}#end if
-	else
-	{
-		# Aula 126
-		// $users = User::listAll();
-
-		# Aula 126
-		$pagination = User::getPage($page, 5);
-
-	}#end else
-
-
+	# Aula 126
+	$pagination = User::getPage($page, 2);
 
 	$pages = [];
 
@@ -62,7 +50,7 @@ $app->get("/admin/users", function()
 });#ROUTE /admin/users GET
 
 
-$app->get("/admin/users/create", function() 
+$app->get("/admin/users/create/", function() 
 {
 	User::verifyLogin();
 
@@ -106,7 +94,7 @@ $app->get("/admin/users/:iduser", function($iduser)
 });#ROUTE /admin/users/:iduser GET
 
 
-$app->post("/admin/users/create", function() 
+$app->post("/admin/users/create/", function() 
 {
 	User::verifyLogin();
 
@@ -124,7 +112,7 @@ $app->post("/admin/users/create", function()
 
 	$user->save();
 
-	header("Location: /admin/users");
+	header("Location: /admin/users/");
 	exit;
 
 });#ROUTE /admin/users/create POST

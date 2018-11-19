@@ -331,7 +331,32 @@ class User extends Model
 			":iduser"=>$this->getiduser()
 			
 		));
+
 	}#END delete
+
+	/*
+	CREATE PROCEDURE `sp_users_delete`(
+	piduser INT
+	)
+	BEGIN
+	    
+	    DECLARE vidperson INT;
+	    
+	    SET FOREIGN_KEY_CHECKS = 0;
+	 
+	    SELECT idperson INTO vidperson
+	    FROM tb_users
+	    WHERE iduser = piduser;
+	 
+	    DELETE FROM tb_persons WHERE idperson = vidperson;
+	    
+	    DELETE FROM tb_userspasswordsrecoveries WHERE iduser = piduser;
+	    DELETE FROM tb_users WHERE iduser = piduser;
+	    
+	    SET FOREIGN_KEY_CHECKS = 1;
+	    
+	END
+	*/
 
 
 public static function getForgot($email, $inadmin = true)
@@ -714,6 +739,108 @@ public static function setSuccess($msg)
 	}#END getOrders
 
 
+	public static function getPage($page = 1, $itensPerPage = 10)
+	{
+		$start = ($page - 1) * $itensPerPage;
+
+		$sql = new Sql();
+
+		$results = $sql->select("
+
+			SELECT SQL_CALC_FOUND_ROWS *
+			FROM tb_users a 
+			INNER JOIN tb_persons b USING(idperson) 
+			ORDER BY b.desperson
+			LIMIT $start, $itensPerPage;
+
+			");
+
+		$resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+		return [
+
+			'data'=>$results,
+			'total'=>(int)$resultTotal[0]["nrtotal"],
+			'pages'=>ceil($resultTotal[0]["nrtotal"] / $itensPerPage)
+
+		];
+
+
+	}#END getPage
+
+
+	public static function getPageSearch($search, $page = 1, $itensPerPage = 10)
+	{
+		$start = ($page - 1) * $itensPerPage;
+
+		$sql = new Sql();
+
+		$results = $sql->select("
+
+			SELECT SQL_CALC_FOUND_ROWS *
+			FROM tb_users a 
+			INNER JOIN tb_persons b USING(idperson)
+			WHERE b.desemail = :search OR b.desperson LIKE :searchlike OR a.deslogin LIKE :searchlike
+			ORDER BY b.desperson
+			LIMIT $start, $itensPerPage;
+
+			", [
+
+				':searchlike'=>'%'.$search.'%',
+				':search'=>$search
+
+			]);
+
+		$resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+		return [
+
+			'data'=>$results,
+			'total'=>(int)$resultTotal[0]["nrtotal"],
+			'pages'=>ceil($resultTotal[0]["nrtotal"] / $itensPerPage)
+
+		];
+
+
+	}#END getPageSearch
+
+
+	/*
+	# Aula 126
+	public static function getPageSearch($search, $page = 1, $itensPerPage = 10)
+	{
+		$start = ($page - 1) * $itensPerPage;
+
+		$sql = new Sql();
+
+		$results = $sql->select("
+
+			SELECT SQL_CALC_FOUND_ROWS *
+			FROM tb_users a 
+			INNER JOIN tb_persons b USING(idperson)
+			WHERE b.desperson LIKE :search OR b.desemail = :search OR a.deslogin LIKE :search
+			ORDER BY b.desperson
+			LIMIT $start, $itensPerPage;
+
+			", [
+
+				':search'=>$search
+
+			]);
+
+		$resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+		return [
+
+			'data'=>$results,
+			'total'=>(int)$resultTotal[0]["nrtotal"],
+			'pages'=>ceil($resultTotal[0]["nrtotal"] / $itensPerPage)
+
+		];
+
+
+	}#END getPageSearch
+	*/
 
 }#END class User
 
