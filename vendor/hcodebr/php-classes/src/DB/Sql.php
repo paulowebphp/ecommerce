@@ -4,10 +4,23 @@ namespace Hcode\DB;
 
 class Sql {
 
+	/*
+	# LOCALHOST
+	##############################
 	const HOSTNAME = "127.0.0.1";
 	const USERNAME = "root";
 	const PASSWORD = "";
 	const DBNAME = "db_ecommerce";
+	##############################
+	*/
+
+	# HOSTGATOR
+	##################################
+	const HOSTNAME = "162.241.2.229";
+	const USERNAME = "amarca35_user";
+	const PASSWORD = "We0@2vtPAzB4";
+	const DBNAME = "amarca35_db";
+	##################################
 
 	private $conn;
 
