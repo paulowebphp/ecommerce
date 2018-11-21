@@ -218,8 +218,133 @@ $app->get("/checkout", function()
 });#END route
 
 
+$app->post("/checkout", function() 
+{
+
+	User::verifyLogin(false);
+
+	# Validando se informou o CEP
+	if( !isset($_POST['zipcode']) || $_POST['zipcode'] === '' )
+	{
+
+		Address::setMsgError("Informe o CEP");
+
+		header('Location: /checkout');
+		exit;
+
+	}#end if
 
 
+	 # Validando se informou o Logradouro
+	if( !isset($_POST['desaddress']) || $_POST['desaddress'] === '' )
+	{
+
+		Address::setMsgError("Informe o Logradouro");
+
+		header('Location: /checkout');
+		exit;
+
+	}#end if
+
+
+
+	 # Validando se informou o Bairro
+	if( !isset($_POST['desdistrict']) || $_POST['desdistrict'] === '' )
+	{
+
+		Address::setMsgError("Informe o Bairro");
+
+		header('Location: /checkout');
+		exit;
+
+	}#end if
+
+
+	 # Validando se informou a Cidade
+	if( !isset($_POST['descity']) || $_POST['descity'] === '' )
+	{
+
+		Address::setMsgError("Informe a Cidade");
+
+		header('Location: /checkout');
+		exit;
+
+	}#end if
+
+
+	 # Validando se informou o Estado
+	if( !isset($_POST['desstate']) || $_POST['desstate'] === '' )
+	{
+
+		Address::setMsgError("Informe o Estado");
+
+		header('Location: /checkout');
+		exit;
+
+	}#end if
+
+
+	 # Validando se informou o País
+	if( !isset($_POST['descountry']) || $_POST['descountry'] === '' )
+	{
+
+		Address::setMsgError("Informe o País");
+
+		header('Location: /checkout');
+		exit;
+
+	}#end if
+
+
+	$user = User::getFromSession();
+
+	$address = new Address();
+
+	$_POST['deszipcode'] = $_POST['zipcode'];
+	$_POST['idperson'] = $user->getidperson();
+
+	$address->setData($_POST);
+
+	$address->save();
+
+	$cart = Cart::getFromSession();
+
+	$totals = $cart->getCalculateTotal();
+
+	$order = new Order();
+
+	$order->setData([
+
+		'idcart'=>$cart->getidcart(),
+		'idaddress'=>$address->getidaddress(),
+		'iduser'=>$user->getiduser(),
+		'idstatus'=>OrderStatus::EM_ABERTO,
+		'vltotal'=>$cart->getvltotal()
+
+	]);
+
+	$order->save();
+
+	switch ( (int)$_POST['payment-method'] )
+	{
+
+		case 1:
+		header("Location: /order/".$order->getidorder()."/pagseguro");
+		break;
+
+		case 2;
+		header("Location: /order/".$order->getidorder()."/paypal");
+		break;
+
+	}#end switch
+
+	exit;
+
+});#END route
+
+
+/*
+# Backup Aula 134 - Paypal
 
 $app->post("/checkout", function() 
 {
@@ -332,10 +457,11 @@ $app->post("/checkout", function()
 	exit;
 
 });#END route
+*/
 
 
 /*
-# Backup Aula 133
+# Backup Aula 133 - PagSeguro
 
 $app->post("/checkout", function() 
 {
@@ -450,7 +576,7 @@ $app->post("/checkout", function()
 });#END route
 */
 
-# Aula 133
+# Aula 133 - Rota do PagSeguro
 $app->get("/order/:idorder/pagseguro", function($idorder) 
 {
 	User::verifyLogin(false);
@@ -484,6 +610,34 @@ $app->get("/order/:idorder/pagseguro", function($idorder)
 
 });#END route
 
+
+# Aula 133 - Rota do PayPal
+$app->get("/order/:idorder/paypal", function($idorder) 
+{
+	User::verifyLogin(false);
+
+	$order = new Order();
+
+	$order->get((int)$idorder);
+
+	$cart = $order->getCart();
+	
+	$page = new Page([
+
+		'header'=>false,
+		'footer'=>false
+
+	]);
+
+	$page->setTpl("payment-paypal", [
+
+		'order'=>$order->getValues(),
+		'cart'=>$cart->getValues(),
+		'products'=>$cart->getProducts()
+
+	]); 
+
+});#END route
 
 $app->get("/login", function() 
 {
