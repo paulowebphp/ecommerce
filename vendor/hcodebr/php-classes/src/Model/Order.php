@@ -11,6 +11,8 @@ use \Hcode\Model\Cart;
 class Order extends Model
 {
 
+	const SESSION = "OrderSession";
+
 	const SUCCESS = "Order-Success";
 	const ERROR = "Order-Error";
 
@@ -270,6 +272,18 @@ class Order extends Model
 
 	}#END getPageSearch
 
+
+	public function toSession()
+	{
+		$_SESSION[Order::SESSION] = $this->getValues();
+	}#END toSession
+
+
+	public function getFromSession()
+	{
+
+		$this->setData($_SESSION[Order::SESSION]);
+	}#END getFromSession
 
 
 }#END class Order

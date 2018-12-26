@@ -6,18 +6,24 @@ class Config
 {
 	const SANDBOX = true;
 
+	# E-mail
 	const SANDBOX_EMAIL = "jpccambraia@gmail.com";
-
 	const PRODUCTION_EMAIL = "jpccambraia@gmail.com";
 
-	const SANDBOX_TOKEN = "9F1494D9364F46BF8056DA6DE39974C9";
 
+	# Token
+	const SANDBOX_TOKEN = "9F1494D9364F46BF8056DA6DE39974C9";
 	const PRODUCTION_TOKEN = "AA7A260344E9434CACA8AD2E29B9A177";
 
-	const SANDBOX_SESSIONS = "https://ws.sandbox.pagseguro.uol.com.br/v2/sessions";	
 
+	# Url Sessions
+	const SANDBOX_SESSIONS = "https://ws.sandbox.pagseguro.uol.com.br/v2/sessions";	
 	const PRODUCTION_SESSIONS = "https://ws.pagseguro.uol.com.br/v2/sessions";
 
+
+	# Url Js
+	const SANDBOX_URL_JS = "https://stc.sandbox.pagseguro.uol.com.br/pagseguro/api/v2/checkout/pagseguro.directpayment.js";
+	const PRODUCTION_URL_JS = "https://stc.pagseguro.uol.com.br/pagseguro/api/v2/checkout/pagseguro.directpayment.js";
 
 
 
@@ -55,6 +61,17 @@ class Config
 		return (Config::SANDBOX === true) ? Config::SANDBOX_SESSIONS : Config::PRODUCTION_SESSIONS;
 
 	}#END getUrlSessions
+
+
+	public static function getUrlJS()
+	{
+
+		return (Config::SANDBOX === true) ? Config::SANDBOX_URL_JS : Config::PRODUCTION_URL_JS;
+
+	}#END getUrlJS
+
+
+
 
 }#END class Config
 

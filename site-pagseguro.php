@@ -4,6 +4,44 @@ use \Hcode\Page;
 use \Hcode\Model\User;
 use \GuzzleHttp\Client;
 use \Hcode\PagSeguro\Config;
+use \Hcode\Model\Order;
+
+$app->get('/payment', function() 
+{
+	User::verifyLogin(false);
+
+	$order = new Order();
+
+	$order->getFromSession();
+
+	$years = [];
+
+	for ($y = date('Y'); $y < date('Y')+14; $y++)
+	{ 
+		# code...
+		array_push($years, $y);
+	}#end for
+
+	$page = new Page([
+		"footer" => false
+	]);
+
+	$page->setTpl("payment", [
+
+		"order" => $order->getValues(),
+		"msgError" => Order::getError(),
+		"years" => $years,
+		"pagseguro" => [
+
+			"urlJS" => Config::getUrlJS()
+
+		]
+
+	]);
+
+});#END route
+
+
 
 $app->get('/payment/pagseguro', function() 
 {
@@ -35,12 +73,7 @@ $app->get('/payment/pagseguro', function()
 });#END route
 
 
-$app->get('/teste', function() 
-{
 
-	echo "ze";
-
-});#END route
 
 
  ?>
