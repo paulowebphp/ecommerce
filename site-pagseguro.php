@@ -22,9 +22,7 @@ $app->get('/payment', function()
 		array_push($years, $y);
 	}#end for
 
-	$page = new Page([
-		"footer" => false
-	]);
+	$page = new Page();
 
 	$page->setTpl("payment", [
 
