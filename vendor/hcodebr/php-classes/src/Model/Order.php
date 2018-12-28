@@ -5,6 +5,7 @@ namespace Hcode\Model;
 use \Hcode\DB\Sql;
 use \Hcode\Model;
 use \Hcode\Model\Cart;
+use \Hcode\Model\Address;
 
 
 
@@ -273,10 +274,14 @@ class Order extends Model
 	}#END getPageSearch
 
 
+
+
 	public function toSession()
 	{
 		$_SESSION[Order::SESSION] = $this->getValues();
 	}#END toSession
+
+
 
 
 	public function getFromSession()
@@ -284,6 +289,20 @@ class Order extends Model
 
 		$this->setData($_SESSION[Order::SESSION]);
 	}#END getFromSession
+
+
+
+
+	public function getAddress():Address
+	{
+
+		$address = new Address();
+
+		$address->setData($this->getValues());
+
+		return $address;
+
+	}#END getAddress
 
 
 }#END class Order

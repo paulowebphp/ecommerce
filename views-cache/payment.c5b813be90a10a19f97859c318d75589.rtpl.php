@@ -495,19 +495,6 @@
 
                 });
 
-                /*
-                PagSeguroDirectPayment.onSenderHashReady(function(response){
-
-                    if(response.status == 'error') {
-                        console.log(response.message);
-                        return false;
-                    }
-
-                    var hash = response.senderHash; //Hash estará disponível nesta variável.
-
-                    });
-                */
-
                 PagSeguroDirectPayment.createCardToken({
 
                     cardNumber: params.number,
@@ -516,10 +503,20 @@
                     expirationYear: params.year,
                     success: function(response) {
                         //token gerado, esse deve ser usado na chamada da API do Checkout Transparente
-                        
-                        console.log("TOKEN",response);
-                        console.log("HASH", PagSeguroDirectPayment.getSenderHash());
-                        console.log("params", params);
+                        params.token = response.card.token;
+                        params.hash = PagSeguroDirectPayment.getSenderHash();
+
+                        $.post(
+
+                            "/payment/credit",
+                            $.param(params),
+                            function(r){
+
+                                console.log(r);
+
+                            }
+
+                            );
                     },
                     error: function(response) {
                         //tratamento do erro
