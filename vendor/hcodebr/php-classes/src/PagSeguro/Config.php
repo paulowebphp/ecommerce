@@ -26,9 +26,9 @@ class Config
 	const PRODUCTION_URL_JS = "https://stc.pagseguro.uol.com.br/pagseguro/api/v2/checkout/pagseguro.directpayment.js";
 
 
-	const MAX_INSTALLMENT_NO_INTEREST = 3;
+	const MAX_INSTALLMENT_NO_INTEREST = 6;
 
-	const MAX_INSTALLMENT = 9;
+	const MAX_INSTALLMENT = 10;
 
 	public static function getAuthentication():array
 	{
