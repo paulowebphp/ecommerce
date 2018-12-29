@@ -2,7 +2,7 @@
 
 namespace Hcode\PagSeguro;
 
-class Shipping
+class Address
 {
 
 	private $street;
@@ -41,7 +41,7 @@ class Shipping
 		# Validando number
 		if( !$number )
 		{
-			throw new \Exception("Informe o logradouro");
+			throw new \Exception("Informe o número");
 			
 		}#end if
 
@@ -94,7 +94,7 @@ class Shipping
 		$this->district = $district;
 		$this->postalCode = $postalCode;
 		$this->city = $city;
-		$this->state = $number;
+		$this->state = $state;
 		$this->country = $country;
 
 	}#END __construct	
@@ -137,7 +137,7 @@ class Shipping
 	}#END getDOMElement
 
 
-}#END class Shipping
+}#END class Address
 
 
  ?>
