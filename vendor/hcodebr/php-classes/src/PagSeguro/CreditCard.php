@@ -37,7 +37,7 @@ class CreditCard
 		$this->holder = $holder;
 		$this->billingAddress = $billingAddress;
 
-	}#END __construct	
+	}#END __construct
 
 
 	public function getDOMElement():DOMElement
