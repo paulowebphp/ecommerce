@@ -78,16 +78,16 @@ class Sender
 		$bornDate = $dom->createElement("bornDate", $this->bornDate->format("d/m/Y"));
 		$bornDate = $sender->appendChild($bornDate);
 
-		$document = $dom->createElement("document", $this->document);
-		$document = $sender->appendChild($document);
+		$documents = $dom->createElement("documents", $this->documents);
+		$documents = $sender->appendChild($documents);
 
 		$cpf = $this->cpf->getDOMElement();
 		$cpf = $dom->importNode($cpf, true);
-		$cpf = $document->appendChild($cpf);
+		$cpf = $documents->appendChild($cpf);
 
 		$phone = $this->phone->getDOMElement();
 		$phone = $dom->importNode($phone, true);
-		$phone = $document->appendChild($phone);
+		$phone = $documents->appendChild($phone);
 
 		$hash = $dom->createElement("hash", $this->hash);
 		$hash = $sender->appendChild($hash);
