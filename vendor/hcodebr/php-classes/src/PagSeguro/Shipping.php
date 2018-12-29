@@ -15,6 +15,79 @@ class Shipping
 	private $addressRequired;
 
 
+	public function __construct(
+
+		Address $address,
+		flat $cost,
+		int $type, 
+		bool $addressRequired = true
+
+	)
+
+	{
+
+		# Validando type
+		if( 
+
+			!$type < 1
+			||
+			$type > 3
+
+		)
+
+		{
+			throw new \Exception("
+
+				Informe um valor:
+				<br>
+				<br>
+				(1) PAC;
+				<br>
+				(2) SEDEX;
+				<br>
+				(3) OUTROS
+				<br>
+
+				");
+			
+		}#end if
+
+
+		$this->address = $address;
+		$this->cost = $cost;
+		$this->type = $type;
+		$this->addressRequired = $addressRequired;
+
+	}#END __construct	
+
+
+	public function getDOMElement():DOMElement
+	{
+
+		$dom = new DOMDocument();
+
+		$shipping = $dom->createElement($shipping);
+		$shipping = $dom->appendChild($shipping);
+
+		$address = $this->address->getDOMElement();
+		$address = $dom->importNode($address, true);
+		$address = $documents->appendChild($address);
+
+		$cost = $dom->createElement("cost", number_format($this->cost, 2, ".", ""));
+		$cost = $shipping->appendChild($cost);
+
+		$type = $dom->createElement("type", $this->type);
+		$type = $shipping->appendChild($type);
+
+		$addressRequired = $dom->createElement("addressRequired", ($this->addressRequired) ? "true" : "false");
+		$addressRequired = $shipping->appendChild($addressRequired);
+ 	
+		return $shipping;
+
+	}#END getDOMElement
+
+
+
 }#END class Shipping
 
 
