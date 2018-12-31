@@ -2,9 +2,20 @@
 
 use \Hcode\Page;
 use \Hcode\Model\User;
+use \Hcode\Model\Order;
 use \Hcode\PagSeguro\Config;
 use \Hcode\PagSeguro\Transporter;
-use \Hcode\Model\Order;
+use \Hcode\PagSeguro\Document;
+use \Hcode\PagSeguro\Phone;
+use \Hcode\PagSeguro\Address;
+use \Hcode\PagSeguro\Sender;
+use \Hcode\PagSeguro\Shipping;
+use \Hcode\PagSeguro\CreditCard;
+use \Hcode\PagSeguro\Item;
+use \Hcode\PagSeguro\Payment;
+use \Hcode\PagSeguro\CreditCard\Holder;
+use \Hcode\PagSeguro\CreditCard\Installment;
+
 
 
 $app->post('/payment/credit', function() 
@@ -16,21 +27,125 @@ $app->post('/payment/credit', function()
 
 	$order->getFromSession();
 
+	$order->get((int)$order->getidorder());
+
 	$address = $order->getAddress();
 
 	$cart = $order->getCart();
 
-	echo "Order:";
-	echo "<br><br>";
-	var_dump($order->getValues());
-	echo "<br><br>";
-	echo "Address:";
-	echo "<br><br>";
-	var_dump($address->getValues());
-	echo "<br><br>";
-	echo "Cart:";
-	echo "<br><br>";
-	var_dump($cart->getValues());
+	$cpf = new Document(Document::CPF, $_POST['cpf']);
+
+
+	$phone = new Phone($_POST['ddd'], $_POST['phone']);
+
+	$shippingAddress = new Address(
+
+		$address->getdesaddress(),
+		$address->getdesnumber(),
+		$address->getdescomplement(),
+		$address->getdesdistrict(),
+		$address->getdeszipcode(),
+		$address->getdescity(),
+		$address->getdesstate(),
+		$address->getdescountry()
+
+	);
+
+	$birthDate = new DateTime($_POST['birth']);
+
+	$sender = new Sender(
+
+		$order->getdesperson(),
+		$cpf,
+		$birthDate,
+		$phone,
+		$order->getdesemail(),
+		$_POST['hash']
+
+	);
+
+	$holder = new Holder(
+
+		$order->getdesperson(),
+		$cpf,
+		$birthDate,
+		$phone
+
+	);
+
+	$shipping = new Shipping(
+
+		$shippingAddress,
+		(float)$cart->vlfreight(),
+		Shipping::PAC
+
+	);
+
+	$installment = new Installment(
+
+		(int)$_POST["installments_qtd"],
+		(float)$_POST["installments_value"]
+
+	);
+
+
+	$billingAddress = new Address(
+
+		$address->getdesaddress(),
+		$address->getdesnumber(),
+		$address->getdescomplement(),
+		$address->getdesdistrict(),
+		$address->getdeszipcode(),
+		$address->getdescity(),
+		$address->getdesstate(),
+		$address->getdescountry()
+
+	);
+
+	$creditCard = new CreditCard(
+
+		$_POST['token'],
+		$installment,
+		$holder,
+		$billingAddress
+
+	);
+
+	$payment = new Payment(
+
+		$order->getidorder(),
+		$sender,
+		$shipping
+
+	);
+
+	foreach ($cart->getProducts() as $product)
+	{
+		# code...
+		$item = new Item(
+
+		(int)$product['idproduct'],
+		$product['desproduct'],
+		(float)$product['vlprice'],
+		(int)$product['nrqtd'],
+
+		);
+
+		$payment->addItem($item);
+
+	}#end foreach
+
+	$payment->setCreditCard($creditCard);
+
+
+
+
+	#########
+	$dom = $payment->getDOMDocument();
+
+	echo $dom->saveXml();
+
+
 
 });#END route
 

@@ -2,6 +2,14 @@
 
 namespace Hcode\PagSeguro;
 
+use DOMDocument;
+use DOMElement;
+use \Hcode\PagSeguro\Address;	
+use \Hcode\PagSeguro\CreditCard\Installment;
+use \Hcode\PagSeguro\CreditCard\Holder;
+
+
+
 class CreditCard
 {
 
@@ -45,7 +53,7 @@ class CreditCard
 
 		$dom = new DOMDocument();
 
-		$creditCard = $dom->createElement($creditCard);
+		$creditCard = $dom->createElement("creditCard");
 		$creditCard = $dom->appendChild($creditCard);
 
 		$token = $dom->createElement("token", $this->token);

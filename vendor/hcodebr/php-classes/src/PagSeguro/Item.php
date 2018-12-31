@@ -2,6 +2,10 @@
 
 namespace Hcode\PagSeguro;
 
+use DOMDocument;
+use DOMElement;
+
+
 class Item
 {
 
@@ -27,7 +31,7 @@ class Item
 
 			!$id
 			||
-			$id > 0
+			!$id > 0
 
 		)
 		{
@@ -49,7 +53,7 @@ class Item
 
 			!$amount
 			||
-			$amount > 0
+			!$amount > 0
 
 		)
 		{
@@ -63,7 +67,7 @@ class Item
 
 			!$quantity
 			||
-			$quantity > 0
+			!$quantity > 0
 
 		)
 		{
@@ -84,17 +88,17 @@ class Item
 
 		$dom = new DOMDocument();
 
-		$item = $dom->createElement($item);
+		$item = $dom->createElement("item");
 		$item = $dom->appendChild($item);
 
 		$amount = $dom->createElement("amount", number_format($this->amount, 2, ".", ""));
-		$amount = $shipping->appendChild($amount);
+		$amount = $item->appendChild($amount);
 
 		$quantity = $dom->createElement("quantity", $this->quantity);
-		$quantity = $shipping->appendChild($quantity);
+		$quantity = $item->appendChild($quantity);
 
 		$description = $dom->createElement("description", $this->description);
-		$description = $shipping->appendChild($description);
+		$description = $item->appendChild($description);
 	
 		return $item;
 

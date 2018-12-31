@@ -67,7 +67,6 @@ class Address extends Model
 	}#END loadFromCEP
 
 
-
 	public function save()
 	{
 
@@ -111,7 +110,9 @@ class Address extends Model
 		}#end if
 
 	}#END save
+	
 
+	
 
 	public static function setMsgError($msg)
 	{
