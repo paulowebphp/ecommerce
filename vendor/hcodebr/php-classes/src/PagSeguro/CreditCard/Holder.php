@@ -70,7 +70,7 @@ class Holder
 
 		$phone = $this->phone->getDOMElement();
 		$phone = $dom->importNode($phone, true);
-		$phone = $documents->appendChild($phone);
+		$phone = $holder->appendChild($phone);
 
 		return $holder;
 

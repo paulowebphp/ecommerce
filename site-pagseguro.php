@@ -88,7 +88,6 @@ $app->post('/payment/credit', function()
 
 	);
 
-
 	$billingAddress = new Address(
 
 		$address->getdesaddress(),
@@ -119,6 +118,9 @@ $app->post('/payment/credit', function()
 
 	);
 
+
+
+
 	foreach ($cart->getProducts() as $product)
 	{
 		# code...
@@ -135,15 +137,11 @@ $app->post('/payment/credit', function()
 
 	}#end foreach
 
+
+
 	$payment->setCreditCard($creditCard);
 
-
-
-
-	#########
-	$dom = $payment->getDOMDocument();
-
-	echo $dom->saveXml();
+	Transporter::sendTransaction($payment);
 
 
 

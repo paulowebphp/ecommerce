@@ -35,7 +35,7 @@ class Installment
 		)
 
 		{
-			throw new \Exception("A quantidade máxima de parcelas é" . Config::MAX_INSTALLMENT);
+			throw new \Exception("Numero de parcelas invalido");
 			
 		}#end if
 
@@ -63,15 +63,15 @@ class Installment
 		$installment = $dom->createElement("installment");
 		$installment = $dom->appendChild($installment);
 
-		$value = $dom->createElement("value", number_format($this->value, 2, ".", ""));
-		$value = $installment->appendChild($value);
-
 		$quantity = $dom->createElement("quantity", $this->quantity);
 		$quantity = $installment->appendChild($quantity);
 
+		$value = $dom->createElement("value", number_format($this->value, 2, '.', ''));
+		$value = $installment->appendChild($value);
+
 		$noInterestInstallmentQuantity = $dom->createElement("noInterestInstallmentQuantity", Config::MAX_INSTALLMENT_NO_INTEREST);
 		$noInterestInstallmentQuantity = $installment->appendChild($noInterestInstallmentQuantity);
- 	
+
 		return $installment;
 
 	}#END getDOMElement

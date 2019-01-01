@@ -343,8 +343,6 @@
 
                 var installment = $(this).find("option:selected").data("installment");
 
-                console.log(installment);
-
                 $("[name=installments_qtd]").val(installment.quantity);
                 $("[name=installments_value]").val(installment.installmentAmount);
                 $("[name=installments_total]").val(installment.totalAmount);
@@ -368,8 +366,7 @@
                                     brand: response.brand.name,
                                     maxInstallmentNoInterest: parseInt("<?php echo htmlspecialchars( $pagseguro["maxInstallmentNoInterest"], ENT_COMPAT, 'UTF-8', FALSE ); ?>"),
                                     success: function(response) {
-                                    //opções de parcelamento disponível
-                                    
+                                    //opções de parcelamento disponível                                     
                                     $("#installments_field").html('<option disabled="disabled"></option>');
 
                                     var tplInstallmentFree = Handlebars.compile($("#tpl-installment-free").html());
@@ -378,9 +375,9 @@
 
                                     var formatReal = {
 
-                                        minimumFractionDigits: 2,
-                                        style: "currency",
-                                        currency: "BRL" 
+                                        minimumFractionDigits:2,
+                                        style:"currency",
+                                        currency:"BRL" 
 
                                     };
 
@@ -393,8 +390,8 @@
                                             {
                                                 var $option = $(tplInstallmentFree({
 
-                                                    quantity: installment.quantity,
-                                                    installmentAmount: installment.installmentAmount.toLocaleString('pt-BR', formatReal)
+                                                    quantity:installment.quantity,
+                                                    installmentAmount:installment.installmentAmount.toLocaleString('pt-BR', formatReal)
 
                                                 }));
 
@@ -402,9 +399,9 @@
                                             {
                                                 var $option = $(tplInstallment({
 
-                                                    quantity: installment.quantity,
-                                                    installmentAmount: installment.installmentAmount.toLocaleString('pt-BR', formatReal),
-                                                    totalAmount: installment.totalAmount.toLocaleString('pt-BR', formatReal)
+                                                    quantity:installment.quantity,
+                                                    installmentAmount:installment.installmentAmount.toLocaleString('pt-BR', formatReal),
+                                                    totalAmount:installment.totalAmount.toLocaleString('pt-BR', formatReal)
 
                                                 }));
 
