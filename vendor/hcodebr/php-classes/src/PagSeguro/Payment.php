@@ -158,8 +158,7 @@ class Payment
 
 		}#end switch
 
-		
-
+	
 
 		return $dom;
 
